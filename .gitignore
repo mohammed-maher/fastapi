@@ -1,0 +1,8 @@
+*.override.yml
+.env
+.idea/
+redis/
+logs/
+db/
+app
+*.iml
