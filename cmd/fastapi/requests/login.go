@@ -2,7 +2,6 @@ package requests
 
 import (
 	"errors"
-	"log"
 )
 
 type LoginUser struct {
@@ -18,7 +17,6 @@ func (r *LoginUser) Validate() error {
 	}
 
 	if len(r.Password) < 6 {
-		log.Println(r.Password)
 		error = "invalid_password"
 	}
 

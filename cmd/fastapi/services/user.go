@@ -31,13 +31,13 @@ func NewUserService(dao userDao) *UserService {
 //Authenticate user
 func (s *UserService) Login(req *requests.LoginUser) *response.Login {
 	//validate input
-	if err:=req.Validate();err!=nil{
+	if err := req.Validate(); err != nil {
 		return response.LoginError(err.Error())
 	}
 	//find user with requested identifier
 	user, err := s.dao.Find(req.Identifier)
 	if err != nil {
-		log.Println(err,req.Identifier)
+		log.Println(err, req.Identifier)
 		return response.LoginError("user_not_found")
 	}
 
@@ -46,11 +46,11 @@ func (s *UserService) Login(req *requests.LoginUser) *response.Login {
 		return response.LoginError("invalid_credentials")
 	}
 	//generate auth tokens
-	token, err := auth.CreateToken(uint64(user.ID))
+	tokenDetails, err := auth.CreateAuth(uint64(user.ID), user.Superuser)
 	if err != nil {
 		return response.LoginError("system_error")
 	}
-	return response.LoginOK(token, token)
+	return response.LoginOK(tokenDetails.AccessToken, tokenDetails.RefreshToken)
 }
 
 //register new user
@@ -95,6 +95,7 @@ func (s *UserService) Register(req *requests.RegisterUser) *response.Register {
 }
 
 func (s *UserService) ResetPasswordInit(req *requests.ResetPassword) *response.Base {
+	//validate user input
 	if err := req.Validate(); err != nil {
 		return &response.Base{
 			Code:    http.StatusBadRequest,
@@ -102,6 +103,7 @@ func (s *UserService) ResetPasswordInit(req *requests.ResetPassword) *response.B
 			Message: "",
 		}
 	}
+	//check if user exists
 	user, err := s.dao.Find(req.Identifier)
 	if err != nil {
 		log.Printf("user %s not found\n", req.Identifier)
@@ -111,10 +113,12 @@ func (s *UserService) ResetPasswordInit(req *requests.ResetPassword) *response.B
 			Message: "",
 		}
 	}
+	//generate reset password code
 	code := fmt.Sprintf("%d", rand.New(rand.NewSource(time.Now().UnixNano())).Intn(999999))
 	if err := auth.Set(fmt.Sprintf("%d", user.ID), code, time.Hour); err != nil {
 		log.Println(err)
 	}
+	//email the code to user in email
 	mailer := mails.ResetPasswordEmail{
 		To:   user.Email,
 		Name: user.Name,
@@ -145,30 +149,57 @@ func (s *UserService) PasswordResetConform(req *requests.ResetPasswordConform) *
 
 		return errResponse
 	}
-	code,err:= auth.Get(fmt.Sprintf("%d", user.ID)).Result()
-	if code==""{
+	code, err := auth.Get(fmt.Sprintf("%d", user.ID)).Result()
+	if code == "" {
 		return errResponse
 	}
 	if code != req.Code || code == "" {
-		log.Println(code,req.Code)
+		log.Println(code, req.Code)
 		return errResponse
 	}
 	newPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-
 		fmt.Println(err)
 	}
-	user.Password=string(newPassword)
+	user.Password = string(newPassword)
 	err = s.dao.Update(user)
 	if err != nil {
 		log.Println(err)
 		return errResponse
 	}
-	auth.Set(fmt.Sprintf("%d", user.ID), nil, time.Second)
+	auth.Del(fmt.Sprintf("%d", user.ID))
 
 	return &response.Base{
 		Code:    http.StatusOK,
 		Error:   nil,
 		Message: "password_updated",
 	}
+}
+
+func Logout(authHeader string) *response.Base {
+	tokenData, err := auth.ExtractTokenMetadata(authHeader)
+	if err != nil {
+		return &response.Base{
+			Code:  http.StatusBadRequest,
+			Error: err,
+		}
+	}
+	auth.Del(tokenData.TokenUUID)
+	return &response.Base{
+		Code:    http.StatusOK,
+		Error:   nil,
+		Message: "logout_success",
+	}
+}
+
+func RefreshToken(r *requests.RefreshRequest) *response.Login {
+	if err:=r.Validate();err!=nil{
+		return response.LoginError(err.Error())
+	}
+	ts, err := auth.RefreshToken(r.RefreshToken)
+	if err != nil {
+		log.Println(err)
+		return response.LoginError("invalid_token")
+	}
+	return response.LoginOK(ts.AccessToken, ts.RefreshToken)
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/mohammed-maher/fastapi/response"
 	"github.com/mohammed-maher/fastapi/services"
 )
-
 func Login(ctx *fiber.Ctx) {
 	userService := services.NewUserService(daos.NewUserDao())
 	var req requests.LoginUser
@@ -35,4 +34,14 @@ func ResetPasswordConform(ctx *fiber.Ctx){
 	var req requests.ResetPasswordConform
 	ctx.BodyParser(&req)
 	response.Send(ctx,userService.PasswordResetConform(&req))
+}
+
+func Logout(ctx *fiber.Ctx){
+	response.Send(ctx,services.Logout(ctx.Get("Authorization")))
+}
+
+func RefreshToken(ctx *fiber.Ctx){
+	var req requests.RefreshRequest
+	ctx.BodyParser(&req)
+	response.Send(ctx,services.RefreshToken(&req))
 }
