@@ -27,18 +27,18 @@ func (r *Login) error() error {
 	return r.Error
 }
 
-func (r *Login) message() string  {
+func (r *Login) message() string {
 	return r.Message
 }
 
 func LoginError(err string) *Login {
 	return &Login{
-		Base: ERROR(http.StatusUnauthorized, err),
+		Base: *ERROR(http.StatusUnauthorized, err),
 	}
 }
-func LoginOK(accessToken,refreshToken string) *Login{
+func LoginOK(accessToken, refreshToken string) *Login {
 	return &Login{
-		Base:         OK(""),
+		Base:         *OK(""),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}

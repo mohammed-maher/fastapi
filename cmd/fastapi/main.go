@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/mohammed-maher/fastapi/auth"
 	_ "github.com/mohammed-maher/fastapi/config"
 	"github.com/mohammed-maher/fastapi/models"
@@ -9,9 +9,12 @@ import (
 )
 
 func main() {
+
 	models.Setup()
 	auth.SetupRedis()
-	r := fiber.New()
+	r := fiber.New(fiber.Config{
+		BodyLimit: 10<<20,
+	})
 	route.Register(r)
-	r.Listen(8080)
+	r.Listen(":8080")
 }

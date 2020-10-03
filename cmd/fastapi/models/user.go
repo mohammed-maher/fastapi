@@ -12,5 +12,5 @@ type User struct {
 	ImageFileID uint
 	IsDriver    bool
 	StatusID    uint
-	Superuser	bool
+	Superuser   bool
 }

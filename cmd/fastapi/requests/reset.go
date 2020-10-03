@@ -2,25 +2,37 @@ package requests
 
 import "errors"
 
-type ResetPassword struct {
+type ResetPasswordInit struct {
 	Identifier string
+}
+
+type ResetPasswordVerify struct {
+	Identifier string
+	Code       string
 }
 
 type ResetPasswordConform struct {
 	Identifier  string
-	Code        string
+	OperationId string
 	NewPassword string
 }
 
-func (r *ResetPassword) Validate() error {
-	if len(r.Identifier) < 6 {
+func (r *ResetPasswordInit) Validate() error {
+	if !validateIdentifier(&r.Identifier) {
 		return errors.New("invalid_identifier")
 	}
 	return nil
 }
 
 func (r *ResetPasswordConform) Validate() error {
-	if len(r.Identifier) < 6 || len(r.Code) < 6 || len(r.NewPassword)<6{
+	if !validateIdentifier(&r.Identifier) || len(r.OperationId) < 6 || len(r.NewPassword) < 6 {
+		return errors.New("invalid_input")
+	}
+	return nil
+}
+
+func (r *ResetPasswordVerify) Validate() error {
+	if !validateIdentifier(&r.Identifier) || len(r.Code) < 3 {
 		return errors.New("invalid_input")
 	}
 	return nil

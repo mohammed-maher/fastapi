@@ -1,23 +1,38 @@
 package route
 
 import (
-	"github.com/gofiber/fiber"
-	"github.com/gofiber/fiber/middleware"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/mohammed-maher/fastapi/handlers"
+	"github.com/mohammed-maher/fastapi/middleware"
 )
 
-func Register(app *fiber.App){
-	api:=app.Group("/api",middleware.Logger())
+func Register(app *fiber.App) {
+	app.Use(logger.New())
 	{
-		api=app.Group("/auth")
-		api.Post("/login", handlers.Login)
-		api.Post("/register",handlers.Register)
-		api.Get("/logout",handlers.Logout)
-		api.Post("/refresh",handlers.RefreshToken)
+		api := app.Group("/api")
+		//authorization endpoints
 		{
-			api=app.Group("/resetpassword")
-			api.Post("/init", handlers.ResetPasswordInit)
-			api.Post("/conform", handlers.ResetPasswordConform)
+			r := api.Group("/auth")
+			r.Post("/login", handlers.Login)
+			r.Post("/register", handlers.Register)
+			r.Post("/activate",handlers.ActivateUser)
+			r.Get("/logout", handlers.Logout)
+			r.Post("/refresh", handlers.RefreshToken)
+			{
+				r = r.Group("/resetpassword")
+				r.Post("/init", handlers.ResetPasswordInit)
+				r.Post("/verify", handlers.ResetPasswordVerify)
+				r.Post("/conform", handlers.ResetPasswordConform)
+			}
+		}
+
+		//car endpoints
+		{
+			r := api.Group("/cars")
+			r.Use(middleware.AuthorizeUser)
+			r.Post("/add", handlers.AddCar)
+			r.Post("/delete/:id", handlers.DeleteCar)
 		}
 	}
 }

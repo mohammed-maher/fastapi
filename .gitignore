@@ -4,5 +4,7 @@
 redis/
 logs/
 db/
+data/
+storage/
 app
 *.iml

@@ -1,12 +1,14 @@
 package requests
 
 import (
-	"fmt"
+	"mime/multipart"
+	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
-func validateMobileNumber(number string) bool {
+func ValidateMobileNumber(number string) bool {
 	if len(number) < 10 || len(number) > 13 {
 		return false
 	}
@@ -50,7 +52,7 @@ func FQN(mobile string) string {
 	return mobile
 }
 
-func validateEmailAddress(email string) bool {
+func ValidateEmailAddress(email string) bool {
 	pattern := "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 	match, err := regexp.Match(pattern, []byte(email))
 	return match && err == nil
@@ -58,9 +60,18 @@ func validateEmailAddress(email string) bool {
 
 func validateIdentifier(identifier *string) bool {
 	if _, err := strconv.Atoi(*identifier); err != nil {
-		fmt.Println(err)
-		return validateEmailAddress(*identifier)
+		return ValidateEmailAddress(*identifier)
 	}
 	*identifier = FQN(*identifier)
-	return validateMobileNumber(*identifier)
+	return ValidateMobileNumber(*identifier)
+}
+
+func validateFileExtension(f *multipart.FileHeader, allowedExt []string) bool {
+	ext := filepath.Ext(f.Filename)
+	for _, e := range allowedExt {
+		if e == strings.ToUpper(ext)[1:] {
+			return true
+		}
+	}
+	return false
 }

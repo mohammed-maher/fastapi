@@ -1,0 +1,17 @@
+from golang as builder
+
+WORKDIR /app/fastapi
+
+COPY ./cmd/fastapi .
+
+RUN go get .
+RUN CGO_ENABLED=0 GOOS=linux go build -o app .
+
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+WORKDIR /bin
+COPY --from=builder /app/fastapi/app .
+
+CMD ["./app"]
+
+EXPOSE 8080

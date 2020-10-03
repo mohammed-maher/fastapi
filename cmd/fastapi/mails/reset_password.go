@@ -2,24 +2,34 @@ package mails
 
 import (
 	"bytes"
+	"github.com/mohammed-maher/fastapi/helpers"
 	"html/template"
 	"log"
-	"path/filepath"
 )
 
 type ResetPasswordEmail struct {
-	To string
+	To   string
 	Name string
 	Code string
 }
+var tplCache []byte
 
 func (s *ResetPasswordEmail) Send() {
-	path,err:=filepath.Abs("mails/templates/reset_password.gohtml")
-	if err!=nil{
-		log.Println(err)
-		return
+	if tplCache==nil{
+		tplObj:=helpers.StorageObject{
+			Key:    "reset_password.gohtml",
+			Bucket: "internals",
+			File:   nil,
+		}
+		tplData,err:=tplObj.Get()
+		if err!=nil{
+			log.Println(err)
+			return
+		}
+		tplCache=tplData
 	}
-	tpl, err := template.ParseFiles(path)
+
+	tpl, err := template.New("reset").Parse(string(tplCache))
 	if err != nil {
 		log.Println(err)
 		return
@@ -27,8 +37,8 @@ func (s *ResetPasswordEmail) Send() {
 	var body bytes.Buffer
 	var content []byte
 	tpl.Execute(&body, s)
-	content=body.Bytes()
-	email:=Email{
+	content = body.Bytes()
+	email := Email{
 		To:      []string{s.To},
 		Subject: "Reset Password",
 		Body:    content,

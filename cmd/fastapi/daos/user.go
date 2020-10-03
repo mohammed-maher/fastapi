@@ -16,16 +16,16 @@ func (u *UserDAO) Find(identifier string) (*models.User, error) {
 	return &user, err
 }
 
-func (u *UserDAO) UserExists(mobile,email string) bool{
-	return models.DB.Where("mobile=? OR email=?", mobile, email).
+func (u *UserDAO) UserExists(mobile, email string) bool {
+	return models.DB.Where("mobile=? OR (email!='' AND email=?)", mobile, email).
 		Find(&models.User{}).
-		Error==nil
+		Error == nil
 }
 
 func (u *UserDAO) Create(user *models.User) error {
 	return models.DB.Create(&user).Error
 }
 
-func (u *UserDAO) Update(user *models.User) error{
+func (u *UserDAO) Update(user *models.User) error {
 	return models.DB.Save(&user).Error
 }

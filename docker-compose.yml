@@ -1,3 +1,63 @@
 version: "3.8"
+
+networks:
+  app-tier:
+    driver: bridge
+
 services:
-  app:
+#  #Main API service - Development
+#  app:
+#    image: 'mohammedmaher/fastapi:latest'
+#    volumes:
+#      - ./cmd/fastapi:/app
+#      - ./logs:/app/logs
+#    ports:
+#      - 8080:8080
+#    networks:
+#      - app-tier
+#    depends_on:
+#      - db
+#      - redis
+  #Redis for key-value storage
+  redis:
+    image: 'bitnami/redis:latest'
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=$REDIS_PASSWORD
+      - ALLOW_EMPTY_PASSWORD=$REDIS_ALLOW_EMPTY_PASSWORD
+    volumes:
+      - ./redis/data:/bitnami/redis/data
+    networks:
+      - app-tier
+
+  #Postgresql database
+  db:
+    image: 'bitnami/postgresql'
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/postgres:/bitnami/postgresql
+    networks:
+      - app-tier
+    environment:
+      - POSTGRES_DATABASE=$POSTGRES_DATABASE
+      - POSTGRES_USERNAME=$POSTGRES_USERNAME
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+
+  #Object storage service
+  s3:
+    image: 'minio/minio:latest'
+    ports:
+      - 9000:9000
+    networks:
+      - app-tier
+    environment:
+      - MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY
+      - MINIO_SECRET_KEY=$MINIO_SECRET_KEY
+    volumes:
+      - ./storage:/data
+    command:
+      - server
+      - /data
+

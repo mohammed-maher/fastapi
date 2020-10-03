@@ -22,16 +22,16 @@ func (r *Base) message() string {
 func (r *Base) data() map[string]interface{} {
 	return nil
 }
-func OK(message string) Base {
-	return Base{
+func OK(message string) *Base {
+	return &Base{
 		Code:    200,
 		Error:   nil,
 		Message: message,
 	}
 }
 
-func ERROR(code int, message string) Base {
-	return Base{
+func ERROR(code int, message string) *Base {
+	return &Base{
 		Code:  code,
 		Error: errors.New(message),
 	}

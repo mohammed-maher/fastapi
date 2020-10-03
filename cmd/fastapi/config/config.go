@@ -7,24 +7,26 @@ import (
 
 var Config *configuration
 
-
 type configuration struct {
 	DB    *DatabaseConfig
 	Redis *RedisConfig
 	JWT   *JWTConfig
-	SMTP *SmtpConfig
+	SMTP  *SmtpConfig
+	S3    *S3Config
+	SMS   *SMSConfig
 }
 
 func init() {
-	if err:=godotenv.Load(".env");err!=nil{
-		log.Panic("env file failed to load")
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatalln("env file failed to load")
 	}
 
 	Config = &configuration{
-		DB: loadDatabaseConfig(),
+		DB:    loadDatabaseConfig(),
 		Redis: loadRedisConfig(),
-		JWT: LoadJWTConfig(),
-		SMTP: LoadSmtpConfig(),
+		JWT:   LoadJWTConfig(),
+		SMTP:  LoadSmtpConfig(),
+		S3:    LoadS3Config(),
+		SMS:   LoadSMSConfig(),
 	}
 }
-

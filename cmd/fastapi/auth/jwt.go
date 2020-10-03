@@ -27,7 +27,7 @@ func CreateToken(uid uint64, superuser bool) (*TokenDetails, error) {
 	atClaims := jwt.MapClaims{
 		"user_id":     uid,
 		"access_uuid": td.AccessUUID,
-		"super_user":  superuser,
+		"role":        userRole(superuser),
 		"exp":         td.AtExp,
 	}
 
@@ -67,4 +67,11 @@ func CreateAuth(uid uint64, superuser bool) (*TokenDetails, error) {
 		return nil, rtErr
 	}
 	return td, nil
+}
+
+func userRole(isAdmin bool) string {
+	if isAdmin {
+		return "admin"
+	}
+	return "user"
 }

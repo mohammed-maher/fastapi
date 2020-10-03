@@ -1,6 +1,6 @@
 package response
 
-import "github.com/gofiber/fiber"
+import "github.com/gofiber/fiber/v2"
 
 type Response interface {
 	data() map[string]interface{}
@@ -9,22 +9,19 @@ type Response interface {
 	message() string
 }
 
-func Send(ctx *fiber.Ctx, r Response) {
+func Send(ctx *fiber.Ctx, r Response) error {
 	response := fiber.Map{}
-	response["success"] = true
-	data:=r.data()
+	response["success"] = r.error() == nil
+	data := r.data()
 	if data != nil {
-		response["data"]=data
+		response["data"] = data
 	}
-	message:=r.message()
-	if message!=""{
-		response["message"]=message
+	message := r.message()
+	if message != "" {
+		response["message"] = message
 	}
 	if r.error() != nil {
-		response["success"] = false
 		response["error"] = r.error().Error()
 	}
-	ctx.Status(r.code()).JSON(response)
+	return ctx.Status(r.code()).JSON(response)
 }
-
-

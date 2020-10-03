@@ -5,11 +5,12 @@ import "github.com/jinzhu/gorm"
 type Car struct {
 	gorm.Model
 	Mfr              string
-	Year             int
-	Plate            int
+	Year             uint
+	Name             string
+	Plate            string
 	Gov              string
-	UserID           int
-	ImageFileID      int
-	PlateImageFileID int
+	UserID           uint
+	ImageFileID      uint
+	PlateImageFileID uint
 	StatusID         uint
 }

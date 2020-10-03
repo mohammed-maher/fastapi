@@ -23,11 +23,11 @@ func (r *Register) message() string {
 }
 
 var RegisterError = &Register{
-	Base: ERROR(http.StatusUnauthorized, "input_validation_failed"),
+	Base: *ERROR(http.StatusUnauthorized, "registration_failed"),
 }
 
 func RegisterOK() *Register {
 	return &Register{
-		Base:    OK("account_created_successfully"),
+		Base: *OK("account_created_successfully"),
 	}
 }

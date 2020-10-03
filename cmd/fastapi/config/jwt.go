@@ -5,9 +5,9 @@ type JWTConfig struct {
 	RefreshSecret string
 }
 
-func LoadJWTConfig() *JWTConfig{
+func LoadJWTConfig() *JWTConfig {
 	return &JWTConfig{
-		AccessSecret:  getString("JWT_ACCESS_SECRET",""),
-		RefreshSecret: getString("JWT_REFRESH_SECRET",""),
+		AccessSecret:  getString("JWT_ACCESS_SECRET", ""),
+		RefreshSecret: getString("JWT_REFRESH_SECRET", ""),
 	}
 }

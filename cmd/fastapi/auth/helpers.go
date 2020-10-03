@@ -49,6 +49,10 @@ func ValidateToken(tokenString string) error {
 
 func ExtractTokenMetadata(tokenString string) (*AccessTokenDetails, error) {
 	var tokenDetails AccessTokenDetails
+	err := ValidateToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
 	token, err := VerifyToken(tokenString)
 	if err != nil {
 		return nil, err
@@ -63,13 +67,13 @@ func ExtractTokenMetadata(tokenString string) (*AccessTokenDetails, error) {
 		if err != nil {
 			return nil, err
 		}
-		tokenDetails.Superuser = claims["superuser"].(bool)
+		tokenDetails.Superuser = claims["role"].(string) == "admin"
 		return &tokenDetails, nil
 	}
 	return nil, err
 }
 
-func RefreshToken(tokenString string) (*TokenDetails,error) {
+func RefreshToken(tokenString string) (*TokenDetails, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method : %v", token.Header["alg"])
@@ -77,33 +81,33 @@ func RefreshToken(tokenString string) (*TokenDetails,error) {
 		return []byte(config.Config.JWT.RefreshSecret), nil
 	})
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	_, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return nil,fmt.Errorf("token is not valid")
+		return nil, fmt.Errorf("token is not valid")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
 		refreshUUID, ok := claims["refresh_uuid"].(string)
 		if !ok {
-			return nil,fmt.Errorf("incorrect refresh uuid")
+			return nil, fmt.Errorf("incorrect refresh uuid")
 		}
 		userID, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
-		if err!=nil{
-			return nil,err
+		if err != nil {
+			return nil, err
 		}
-		isAdmin:=claims["super_user"].(bool)
-		deleted:=Del(refreshUUID)
-		if deleted!=nil{
-			return nil,fmt.Errorf("error while deleting old refresh uuid")
+		isAdmin := claims["super_user"].(bool)
+		deleted := Del(refreshUUID)
+		if deleted != nil {
+			return nil, fmt.Errorf("error while deleting old refresh uuid")
 		}
-		ts,err:=CreateAuth(userID,isAdmin)
-		if err!=nil{
-			return nil,err
+		ts, err := CreateAuth(userID, isAdmin)
+		if err != nil {
+			return nil, err
 		}
-		return ts,nil
+		return ts, nil
 	}
-	return nil,fmt.Errorf("token is invalid: %v",tokenString)
+	return nil, fmt.Errorf("token is invalid: %v", tokenString)
 }

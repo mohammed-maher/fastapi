@@ -1,47 +1,62 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/mohammed-maher/fastapi/daos"
 	"github.com/mohammed-maher/fastapi/requests"
 	"github.com/mohammed-maher/fastapi/response"
 	"github.com/mohammed-maher/fastapi/services"
 )
-func Login(ctx *fiber.Ctx) {
+
+func Login(ctx *fiber.Ctx) error {
 	userService := services.NewUserService(daos.NewUserDao())
 	var req requests.LoginUser
 	ctx.BodyParser(&req)
 	res := userService.Login(&req)
-	response.Send(ctx, res)
+	return response.Send(ctx, res)
 }
 
-func Register(ctx *fiber.Ctx) {
+func Register(ctx *fiber.Ctx) error {
 	userService := services.NewUserService(daos.NewUserDao())
 	var req requests.RegisterUser
 	ctx.BodyParser(&req)
-	response.Send(ctx,userService.Register(&req))
+	return response.Send(ctx, userService.Register(&req))
 }
 
-func ResetPasswordInit(ctx *fiber.Ctx){
+func ResetPasswordInit(ctx *fiber.Ctx) error {
 	userService := services.NewUserService(daos.NewUserDao())
-	var req requests.ResetPassword
+	var req requests.ResetPasswordInit
 	ctx.BodyParser(&req)
-	response.Send(ctx,userService.ResetPasswordInit(&req))
+	return response.Send(ctx, userService.ResetPasswordInit(&req))
 }
 
-func ResetPasswordConform(ctx *fiber.Ctx){
+func ResetPasswordVerify(ctx *fiber.Ctx) error {
+	userService := services.NewUserService(daos.NewUserDao())
+	var req requests.ResetPasswordVerify
+	ctx.BodyParser(&req)
+	return response.Send(ctx, userService.PasswordResetVerify(&req))
+}
+
+func ResetPasswordConform(ctx *fiber.Ctx) error {
 	userService := services.NewUserService(daos.NewUserDao())
 	var req requests.ResetPasswordConform
 	ctx.BodyParser(&req)
-	response.Send(ctx,userService.PasswordResetConform(&req))
+	return response.Send(ctx, userService.PasswordResetConform(&req))
 }
 
-func Logout(ctx *fiber.Ctx){
-	response.Send(ctx,services.Logout(ctx.Get("Authorization")))
+func Logout(ctx *fiber.Ctx) error {
+	return response.Send(ctx, services.Logout(ctx.Get("Authorization")))
 }
 
-func RefreshToken(ctx *fiber.Ctx){
+func RefreshToken(ctx *fiber.Ctx) error {
 	var req requests.RefreshRequest
 	ctx.BodyParser(&req)
-	response.Send(ctx,services.RefreshToken(&req))
+	return response.Send(ctx, services.RefreshToken(&req))
+}
+
+func ActivateUser(ctx *fiber.Ctx) error{
+	userService:=services.NewUserService(daos.NewUserDao())
+	var req requests.ActivateUser
+	ctx.BodyParser(&req)
+	return response.Send(ctx,userService.Activate(&req))
 }

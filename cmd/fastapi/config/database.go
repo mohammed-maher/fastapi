@@ -22,7 +22,7 @@ func loadDatabaseConfig() *DatabaseConfig {
 		DB_Name:     getString("DB_NAME", "postgres"),
 		DB_Password: getString("DB_PASS", ""),
 		DB_User:     getString("DB_USER", "root"),
-		DB_Driver: 	 getString("DB_TYPE","postgres"),
+		DB_Driver:   getString("DB_TYPE", "postgres"),
 	}
 }
 
