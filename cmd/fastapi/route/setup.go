@@ -34,5 +34,13 @@ func Register(app *fiber.App) {
 			r.Post("/add", handlers.AddCar)
 			r.Post("/delete/:id", handlers.DeleteCar)
 		}
+
+		//trip endpoints
+		{
+			r := api.Group("/trips")
+			r.Use(middleware.AuthorizeUser)
+			r.Post("/add", handlers.AddTrip)
+			r.Post("/delete/:id", handlers.DeleteTrip)
+		}
 	}
 }

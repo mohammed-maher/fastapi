@@ -34,7 +34,6 @@ func (r *AddCarRequest) AttachFiles(ctx *fiber.Ctx) error {
 }
 
 func (r *AddCarRequest) Validate() error {
-	fmt.Println(r)
 	if len(r.Mfr) < 3 || len(r.Model) < 3 || len(r.LicenseNumber) < 3 || len(fmt.Sprintf("%d", r.Year)) < 4 || len(r.LicenseGov) < 3 {
 		return errors.New("invalid_car_details")
 	}
@@ -50,3 +49,5 @@ func (r *AddCarRequest) Validate() error {
 	}
 	return nil
 }
+
+
