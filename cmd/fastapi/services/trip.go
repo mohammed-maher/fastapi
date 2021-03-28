@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"github.com/mohammed-maher/fastapi/daos"
 	"github.com/mohammed-maher/fastapi/models"
 	"github.com/mohammed-maher/fastapi/requests"
@@ -62,21 +61,20 @@ func (s *TripService) Delete(tripId, userId uint) *response.Base {
 	return response.OK("trip_deleted_successfully")
 }
 
-func (s *TripService) Get(pageNumber int,srcCityId,dstCityId uint) *response.PaginatedData{
-	res:=response.PaginatedData{}
-	data,err:=s.dao.Get(pageNumber,srcCityId,dstCityId)
-	res.Error=err
-	resultsCount,err:=s.dao.Count(srcCityId,dstCityId)
-	if err!=nil{
-		res.Error=errors.New("unknown error")
-		return &res
-	}
-	resultsPerPage:=10
-	totalPages := int(resultsCount / resultsPerPage)
-	res.ResultsPerPage=uint(resultsPerPage)
-	res.PagesCount=uint(totalPages)
-	res.Items=*data
-
-}
+//func (s *TripService) Get(pageNumber int,srcCityId,dstCityId uint) *response.PaginatedData{
+//	res:=response.PaginatedData{}
+//	data,err:=s.dao.Get(pageNumber,srcCityId,dstCityId)
+//	res.Error=err
+//	resultsCount,err:=s.dao.Count(srcCityId,dstCityId)
+//	if err!=nil{
+//		res.Error=errors.New("unknown error")
+//		return &res
+//	}
+//	resultsPerPage:=10
+//	totalPages := int(resultsCount / resultsPerPage)
+//	res.ResultsPerPage=uint(resultsPerPage)
+//	res.PagesCount=uint(totalPages)
+//	res.Items=*data
+//}
 
 

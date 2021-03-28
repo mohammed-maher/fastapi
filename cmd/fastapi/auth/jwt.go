@@ -47,7 +47,6 @@ func CreateToken(uid uint64, superuser bool) (*TokenDetails, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return td, nil
 }
 
@@ -59,6 +58,7 @@ func CreateAuth(uid uint64, superuser bool) (*TokenDetails, error) {
 	atExp := time.Unix(td.AtExp, 0)
 	rtExp := time.Unix(td.RtExp, 0)
 	atErr := Set(td.AccessUUID, fmt.Sprintf("%d", uid), atExp.Sub(time.Now()))
+	fmt.Println(atErr)
 	if atErr != nil {
 		return nil, err
 	}

@@ -21,12 +21,12 @@ type StorageObject struct {
 	File   *multipart.FileHeader
 }
 
-const UPLOADS_BUCKET = "uploads"
+var UPLOADS_BUCKET = config.Config.S3.UploadBucket
+
 
 var ctx = context.Background()
 
 func S3() *minio.Client {
-
 	if minioClient == nil {
 		minioClient = SetupStorage()
 	}

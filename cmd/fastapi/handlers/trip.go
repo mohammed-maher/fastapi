@@ -16,13 +16,13 @@ func AddTrip(ctx *fiber.Ctx) error {
 	return response.Send(ctx,tripService.Create(&req))
 }
 
-func GetTrips(ctx *fiber.Ctx) error{
-	from,_:=fmt.Printf("%d",ctx.Get("from"))
-	to,_:=fmt.Printf("%d",ctx.Get("to"))
-	tripService:=services.NewTripService(daos.NewTripDao())
-	return pag
-
-}
+//func GetTrips(ctx *fiber.Ctx) error{
+//	from,_:=fmt.Printf("%d",ctx.Get("from"))
+//	to,_:=fmt.Printf("%d",ctx.Get("to"))
+//	tripService:=services.NewTripService(daos.NewTripDao())
+//	return pag
+//
+//}
 func DeleteTrip(ctx *fiber.Ctx) error {
 	tripService:=services.NewTripService(daos.NewTripDao())
 	tripId,_:=fmt.Printf("%d",ctx.Get("tripId"))
